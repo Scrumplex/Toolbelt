@@ -81,6 +81,8 @@ namespace Toolbelt
             var toolItem = GetSelectedToolItem();
             if (toolItem == null)
                 return;
+            if (e.KeyCode != Keys.Delete)
+                return;
             Directory.Delete(toolItem.Tool.Path, true);
             FindAndAddItems();
         }
