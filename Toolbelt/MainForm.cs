@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using Toolbelt.Properties;
@@ -171,6 +172,47 @@ namespace Toolbelt
             {
                 buttonDelete.Enabled = true;
                 buttonEdit.Enabled = true;
+            }
+        }
+
+        private void MainForm_DragDrop(object sender, DragEventArgs e)
+        {
+            var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
+            foreach (var path in paths)
+            {
+                var directoryName = new FileInfo(path).Name;
+                var targetPath = BasePath + "\\" + directoryName;
+
+                if (Directory.Exists(targetPath))
+                {
+                    MessageBox.Show(Resources.Tool_already_added + @" (" + directoryName + @")", @"Toolbelt");
+                    return;
+                }
+
+                CopyFolder(path, targetPath);
+
+                var dialog = new AddDialog(targetPath);
+                if (dialog.ShowDialog() != DialogResult.OK)
+                    return;
+
+                var tool = new Tool { Name = dialog.EntryName, Path = dialog.Path, MainExecutable = dialog.MainExecutable };
+
+                File.WriteAllText(dialog.Path + "\\toolbelt.json", JsonConvert.SerializeObject(tool));
+            }
+            FindAndAddItems();
+        }
+
+        private void MainForm_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.None;
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+                return;
+
+            var paths = (string[]) e.Data.GetData(DataFormats.FileDrop);
+            e.Effect = DragDropEffects.Copy;
+            if (paths.Any(path => !Directory.Exists(path)))
+            {
+                e.Effect = DragDropEffects.None;
             }
         }
     }
