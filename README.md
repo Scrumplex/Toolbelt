@@ -1,5 +1,2 @@
-# Toolbelt
-Toolbelt is a simple utility where you can put all your portable apps into one place.
-
-## License
-Apache License 2.0
+# This project has moved to GitLab.com
+https://gitlab.com/Scrumplex/Toolbelt
